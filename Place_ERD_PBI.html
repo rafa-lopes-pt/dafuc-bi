@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Place — ERD Modelo de Dados PBI (Dummy Data)</title>
+  <style>
+    :root {
+      --bg: #1a1a2e;
+      --surface: #16213e;
+      --border: #0f3460;
+      --text: #e0e0e0;
+      --heading: #f5f5f5;
+      --accent: #9ac433;
+      --accent2: #533483;
+      --table-header: #0f3460;
+      --table-row-alt: #1a1a3e;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: var(--heading);
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #999;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    section h2 {
+      color: var(--heading);
+      font-size: 1.3rem;
+      margin-bottom: 0.3rem;
+    }
+
+    section p.desc {
+      color: #999;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+      padding: 1rem 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    thead th {
+      background: var(--table-header);
+      color: var(--heading);
+      padding: 0.6rem 1rem;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    tbody td {
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr:nth-child(odd) { background: var(--table-row-alt); }
+
+    code {
+      background: #0d1b2a;
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.85em;
+    }
+
+    .legend {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #999;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-fact { background: #1e3a5f; color: #7ec8e3; }
+    .badge-bridge { background: #2d1b4e; color: #c084fc; }
+    .badge-dim { background: #1a3320; color: #86efac; }
+    .badge-org { background: #3b2a00; color: #fcd34d; }
+    .badge-ref { background: #2d1515; color: #fca5a5; }
+
+    .layer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .layer-card {
+      background: #0d1b2a;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+    }
+
+    .layer-card h3 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #999;
+      margin-bottom: 0.5rem;
+    }
+
+    .layer-card ul {
+      list-style: none;
+      font-size: 0.85rem;
+    }
+
+    .layer-card ul li {
+      padding: 0.2rem 0;
+      border-bottom: 1px solid #1a1a2e;
+    }
+
+    .layer-card ul li:last-child { border-bottom: none; }
+
+    .field-name { color: var(--heading); }
+    .field-type { color: #666; font-size: 0.8em; margin-left: 0.3rem; }
+    .field-pk { color: var(--accent); font-weight: 700; font-size: 0.75em; margin-left: 0.3rem; }
+    .field-fk { color: #e94560; font-size: 0.75em; margin-left: 0.3rem; }
+  </style>
+</head>
+<body>
+
+  <h1>Place — Modelo de Dados PBI (Dummy Data)</h1>
+  <p class="subtitle">
+    ERD dos ficheiros CSV usados para os dashboards Power BI. 17 tabelas organizadas em 5 camadas lógicas.
+    Diferente do modelo SP (6 listas) — aqui os campos estão normalizados e as dimensões são tabelas separadas.
+    Fonte: <code>outputs/Place_Executive_20260403/data/*.csv</code>
+  </p>
+
+  <!-- Diagrama ERD principal -->
+  <section>
+    <h2>Entity Relationship Diagram</h2>
+    <p class="desc">
+      <span class="badge badge-fact">Fact</span> Iniciativas é a tabela central.
+      <span class="badge badge-bridge">Bridge</span> Tabelas de actividade com FK para Iniciativas.
+      <span class="badge badge-dim">Dim</span> Dimensões para filtragem e análise.
+      <span class="badge badge-org">Org</span> Hierarquia organizacional e perfis.
+      <span class="badge badge-ref">Ref</span> Tabelas de referência e targets.
+    </p>
+    <div class="mermaid">
+erDiagram
+    Iniciativas {
+        string UUID PK
+        string Code
+        string Title
+        string Status FK
+        string Team
+        string MacroEquipa FK
+        string SavingType
+        string SavingCategory FK
+        string SavingSubtype FK
+        string Tags
+        string OwnerEmail FK
+        string MentorEmail FK
+        string GestorValidatorEmail FK
+    }
+
+    InitiativesFinancials {
+        string UUID PK
+        string InitiativeUUID FK
+        float FTEAsIs
+        float FTEEstimated
+        float FTEImplemented
+        float SavingsEstimated
+        float SavingsEstimatedAnnual
+        float SavingsImplemented
+        float SavingsImplementedAnnual
+        float ImplementationCost
+        int ImplementationMonths
+    }
+
+    IniciativaTags {
+        string IniciativaUUID FK
+        string Categoria FK
+    }
+
+    Collaborations {
+        string UUID PK
+        string IniciativaUUID FK
+        string CollaboratorEmail FK
+        string AddedByEmail FK
+        string Type
+        string Status
+    }
+
+    Comments {
+        string UUID PK
+        string IniciativaUUID FK
+        string AuthorEmail FK
+        boolean IsConfidential
+        date CommentDate
+    }
+
+    StatusLog {
+        string UUID PK
+        string IniciativaUUID FK
+        string FromStatus
+        string ToStatus
+        string ActorEmail FK
+        datetime Timestamp
+    }
+
+    Notifications {
+        string UUID PK
+        string IniciativaUUID FK
+        string Recipient FK
+        string Type
+        date CreatedDate
+    }
+
+    InitiativesSharedAccess {
+        string UUID PK
+        string InitiativeUUID FK
+        string SharedWithEmail FK
+        string SharedByEmail FK
+        string Type
+        string Status
+    }
+
+    DimEstado {
+        string EstadoID PK
+        string Nome
+        string DisplayNome
+        int Ordem
+        string Fase
+    }
+
+    DimMacroEquipa {
+        string MacroEquipa PK
+        int Ordem
+    }
+
+    DimSubtype {
+        string SubtypeID PK
+        string SubtypeName
+        string ParentType
+    }
+
+    DimTags {
+        string TagID PK
+        string TagName
+    }
+
+    DimTaxonomia {
+        string TaxonomiaID PK
+        string Categoria
+        string HardSoft
+        string Descricao
+    }
+
+    OrgHierarchy {
+        string Email PK
+        string FullName
+        string DeptCode
+        string DeptName
+        string AppRole
+        string MacroEquipa FK
+        string ManagerId FK
+    }
+
+    UserRoles {
+        string Email PK
+        string DisplayName
+        string Team
+        string Roles
+        boolean IsActive
+    }
+
+    CustoFTE {
+        string Team
+        int Year
+        float CustoAnualEuro
+    }
+
+    TargetAnual {
+        int Year PK
+        int TargetIniciativas
+        float TargetSavingsEuro
+    }
+
+    Iniciativas ||--o{ InitiativesFinancials : "InitiativeUUID"
+    Iniciativas ||--o{ IniciativaTags : "IniciativaUUID"
+    Iniciativas ||--o{ Collaborations : "IniciativaUUID"
+    Iniciativas ||--o{ Comments : "IniciativaUUID"
+    Iniciativas ||--o{ StatusLog : "IniciativaUUID"
+    Iniciativas ||--o{ Notifications : "IniciativaUUID"
+    Iniciativas ||--o{ InitiativesSharedAccess : "InitiativeUUID"
+    DimEstado ||--o{ Iniciativas : "Status = Nome"
+    DimMacroEquipa ||--o{ Iniciativas : "MacroEquipa"
+    DimTaxonomia ||--o{ Iniciativas : "SavingCategory = Categoria"
+    DimSubtype ||--o{ Iniciativas : "SavingSubtype = SubtypeName"
+    DimTags ||--o{ IniciativaTags : "TagName = Categoria"
+    OrgHierarchy ||--o{ UserRoles : "Email"
+    OrgHierarchy ||--o{ CustoFTE : "DeptName = Team"
+    UserRoles ||--o{ Iniciativas : "OwnerEmail"
+    UserRoles ||--o{ Iniciativas : "MentorEmail"
+    UserRoles ||--o{ Collaborations : "CollaboratorEmail"
+    UserRoles ||--o{ Comments : "AuthorEmail"
+    UserRoles ||--o{ Notifications : "Recipient"
+    UserRoles ||--o{ StatusLog : "ActorEmail"
+    </div>
+  </section>
+
+  <!-- Inventário de tabelas por camada -->
+  <section>
+    <h2>Inventário por Camada</h2>
+    <p class="desc">17 ficheiros CSV organizados por função no modelo PBI.</p>
+    <div class="layer-grid">
+
+      <div class="layer-card">
+        <h3><span class="badge badge-fact">Fact</span> — Tabela Central</h3>
+        <ul>
+          <li><span class="field-name">Iniciativas</span> — 1 linha por iniciativa PDCA. UUID como PK.</li>
+        </ul>
+      </div>
+
+      <div class="layer-card">
+        <h3><span class="badge badge-bridge">Bridge</span> — Actividade e Relações</h3>
+        <ul>
+          <li><span class="field-name">InitiativesFinancials</span> — FTEs e savings As-Is / Estimados / Implementados. 1:1 com Iniciativas.</li>
+          <li><span class="field-name">IniciativaTags</span> — Tabela ponte Iniciativas ↔ DimTags (N:M).</li>
+          <li><span class="field-name">Collaborations</span> — Colaborações, partilhas, transferências e pareceres.</li>
+          <li><span class="field-name">Comments</span> — Comentários. Flag confidencial.</li>
+          <li><span class="field-name">StatusLog</span> — Audit trail de mudanças de estado.</li>
+          <li><span class="field-name">Notifications</span> — Log de notificações enviadas.</li>
+          <li><span class="field-name">InitiativesSharedAccess</span> — Partilhas explícitas de leitura.</li>
+        </ul>
+      </div>
+
+      <div class="layer-card">
+        <h3><span class="badge badge-dim">Dim</span> — Dimensões</h3>
+        <ul>
+          <li><span class="field-name">DimEstado</span> — Estados do ciclo de vida + Fase + ordem.</li>
+          <li><span class="field-name">DimMacroEquipa</span> — Agrupamento de equipas por macro-área.</li>
+          <li><span class="field-name">DimSubtype</span> — Subtipos de saving (Hard/Soft → subtipo).</li>
+          <li><span class="field-name">DimTags</span> — Etiquetas temáticas (Digitalização, Automação, …).</li>
+          <li><span class="field-name">DimTaxonomia</span> — Taxonomia de saving (OPEX, NBI, …) + Hard/Soft.</li>
+        </ul>
+      </div>
+
+      <div class="layer-card">
+        <h3><span class="badge badge-org">Org</span> — Hierarquia e Perfis</h3>
+        <ul>
+          <li><span class="field-name">OrgHierarchy</span> — Árvore org completa: email PK, dept, manager, AppRole, MacroEquipa.</li>
+          <li><span class="field-name">UserRoles</span> — Perfis de acesso: Colaborador, RE, Mentor, Gestor, Executivo. Roles como JSON.</li>
+        </ul>
+      </div>
+
+      <div class="layer-card">
+        <h3><span class="badge badge-ref">Ref</span> — Referência</h3>
+        <ul>
+          <li><span class="field-name">CustoFTE</span> — Custo anual FTE por equipa e ano. Sem PK explícita (composite: Team+Year).</li>
+          <li><span class="field-name">TargetAnual</span> — Targets de iniciativas e savings por ano.</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Tabela de relações -->
+  <section>
+    <h2>Relações — Chaves de Join</h2>
+    <p class="desc">Todas as relações são lógicas (string matching). Sem foreign keys enforçadas.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Tabela Pai</th>
+          <th>Tabela Filha</th>
+          <th>Campo Pai</th>
+          <th>Campo Filha</th>
+          <th>Cardinalidade</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Iniciativas</td><td>InitiativesFinancials</td><td><code>UUID</code></td><td><code>InitiativeUUID</code></td><td>1:1</td></tr>
+        <tr><td>Iniciativas</td><td>IniciativaTags</td><td><code>UUID</code></td><td><code>IniciativaUUID</code></td><td>1:N</td></tr>
+        <tr><td>Iniciativas</td><td>Collaborations</td><td><code>UUID</code></td><td><code>IniciativaUUID</code></td><td>1:N</td></tr>
+        <tr><td>Iniciativas</td><td>Comments</td><td><code>UUID</code></td><td><code>IniciativaUUID</code></td><td>1:N</td></tr>
+        <tr><td>Iniciativas</td><td>StatusLog</td><td><code>UUID</code></td><td><code>IniciativaUUID</code></td><td>1:N</td></tr>
+        <tr><td>Iniciativas</td><td>Notifications</td><td><code>UUID</code></td><td><code>IniciativaUUID</code></td><td>1:N</td></tr>
+        <tr><td>Iniciativas</td><td>InitiativesSharedAccess</td><td><code>UUID</code></td><td><code>InitiativeUUID</code></td><td>1:N</td></tr>
+        <tr><td>DimEstado</td><td>Iniciativas</td><td><code>Nome</code></td><td><code>Status</code></td><td>1:N</td></tr>
+        <tr><td>DimMacroEquipa</td><td>Iniciativas</td><td><code>MacroEquipa</code></td><td><code>MacroEquipa</code></td><td>1:N</td></tr>
+        <tr><td>DimTaxonomia</td><td>Iniciativas</td><td><code>Categoria</code></td><td><code>SavingCategory</code></td><td>1:N</td></tr>
+        <tr><td>DimSubtype</td><td>Iniciativas</td><td><code>SubtypeName</code></td><td><code>SavingSubtype</code></td><td>1:N</td></tr>
+        <tr><td>DimTags</td><td>IniciativaTags</td><td><code>TagName</code></td><td><code>Categoria</code></td><td>1:N</td></tr>
+        <tr><td>OrgHierarchy</td><td>UserRoles</td><td><code>Email</code></td><td><code>Title</code></td><td>1:1</td></tr>
+        <tr><td>OrgHierarchy</td><td>CustoFTE</td><td><code>DeptName</code></td><td><code>Team</code></td><td>1:N</td></tr>
+        <tr><td>UserRoles</td><td>Iniciativas</td><td><code>Title</code></td><td><code>OwnerEmail</code></td><td>1:N</td></tr>
+        <tr><td>UserRoles</td><td>Iniciativas</td><td><code>Title</code></td><td><code>MentorEmail</code></td><td>1:N</td></tr>
+        <tr><td>UserRoles</td><td>Colaborations</td><td><code>Title</code></td><td><code>CollaboratorEmail</code></td><td>1:N</td></tr>
+        <tr><td>UserRoles</td><td>Comments</td><td><code>Title</code></td><td><code>AuthorEmail</code></td><td>1:N</td></tr>
+        <tr><td>UserRoles</td><td>Notifications</td><td><code>Title</code></td><td><code>Recipient</code></td><td>1:N</td></tr>
+        <tr><td>UserRoles</td><td>StatusLog</td><td><code>Title</code></td><td><code>ActorEmail</code></td><td>1:N</td></tr>
+      </tbody>
+    </table>
+
+    <div class="legend">
+      <span><strong>PK</strong> = Primary Key (UUID ou email)</span>
+      <span><strong>FK</strong> = Foreign Key lógica (string match, não enforçada)</span>
+      <span>IniciativaCode é campo desnormalizado (denorm ref) — não é FK de join</span>
+      <span>Nota: <code>InitiativeUUID</code> vs <code>IniciativaUUID</code> — naming inconsistente nos CSVs (ambos válidos)</span>
+    </div>
+  </section>
+
+  <!-- Diferenças vs modelo SP -->
+  <section>
+    <h2>Diferenças vs Modelo SharePoint (docs/Place_ERD.html)</h2>
+    <p class="desc">O modelo SP tem 6 listas. O modelo PBI tem 17 tabelas — porque o PBI precisa de dimensões e dados financeiros que o SP não expõe directamente.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Tabela PBI</th>
+          <th>Existe no SP?</th>
+          <th>Nota</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Iniciativas</td><td>Sim</td><td>Corresponde à lista SP Iniciativas. Mais campos aqui.</td></tr>
+        <tr><td>Collaborations</td><td>Sim</td><td>Lista SP Collaborations (inclui SharedAccess no SP).</td></tr>
+        <tr><td>Comments</td><td>Sim</td><td>Lista SP Comments.</td></tr>
+        <tr><td>StatusLog</td><td>Sim</td><td>Lista SP StatusLog.</td></tr>
+        <tr><td>Notifications</td><td>Sim</td><td>Lista SP Notifications.</td></tr>
+        <tr><td>UserRoles</td><td>Sim</td><td>Lista SP UserRoles.</td></tr>
+        <tr><td>InitiativesFinancials</td><td>Não</td><td>Campos financeiros embutidos na lista Iniciativas no SP. Separados no PBI para modelo estrela limpo.</td></tr>
+        <tr><td>InitiativesSharedAccess</td><td>Não</td><td>Subtipo de Collaborations no SP (Type=Partilha). Separado no PBI.</td></tr>
+        <tr><td>IniciativaTags</td><td>Não</td><td>Tags como JSON array no SP. Explodido em tabela ponte no PBI.</td></tr>
+        <tr><td>DimEstado</td><td>Não</td><td>Hardcoded no SP. Tabela dimensão no PBI para ordenação e fase.</td></tr>
+        <tr><td>DimMacroEquipa</td><td>Não</td><td>Inferido do OrgHierarchy no SP. Dimensão explícita no PBI.</td></tr>
+        <tr><td>DimSubtype / DimTags / DimTaxonomia</td><td>Não</td><td>Valores hardcoded no SP. Dimensões no PBI para filtros e slicers.</td></tr>
+        <tr><td>OrgHierarchy</td><td>Não</td><td>Vem do AD/User Profile Service SP. Exportado para PBI como tabela plana.</td></tr>
+        <tr><td>CustoFTE</td><td>Não</td><td>Dado externo (Excel/manual). Necessário para cálculo de savings FTE.</td></tr>
+        <tr><td>TargetAnual</td><td>Não</td><td>Dado externo. Necessário para KPIs vs target.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#16213e',
+        primaryColor: '#1a3320',
+        primaryTextColor: '#e0e0e0',
+        primaryBorderColor: '#0f3460',
+        lineColor: '#9ac433',
+        secondaryColor: '#0f3460',
+        tertiaryColor: '#1a1a2e',
+      },
+      er: { useMaxWidth: true, layoutDirection: 'TB' },
+    });
+  </script>
+</body>
+</html>
